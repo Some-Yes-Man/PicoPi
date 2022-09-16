@@ -1,6 +1,6 @@
 from lib.led import Led
 from lib.morse import Morse
-from lib.sensor import LightSensor
+from lib.sensor import Sensor
 
 m = Morse()
 l = Led(0, 50)
