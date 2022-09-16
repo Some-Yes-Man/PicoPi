@@ -1,0 +1,22 @@
+{
+  "picowgo.syncFileTypes": "py,txt,log,json,xml",
+  "picowgo.pyIgnore": [
+    ".picowgo",
+    ".vscode",
+    ".gitignore",
+    ".git",
+    "project.pico-go",
+    "env",
+    "venv",
+    "*.png",
+    "*.pyc",
+  ],
+  "picowgo.pythonPath": "C:\\Program Files (x86)\\Thonny",
+  "picowgo.statusbarButtons": [
+    "status",
+    "run",
+    "softreset",
+    "upload"
+  ]
+
+}
