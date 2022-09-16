@@ -18,11 +18,7 @@ class Led:
     def blink(self, blinkString):
         if (not self.__blinking):
             self.__blinking = True
-            self.__timer.init(
-                freq=self.__frequency,
-                mode=Timer.PERIODIC,
-                callback=self.__processSequence,
-            )
+            self.__timer.init(freq=self.__frequency, mode=Timer.PERIODIC, callback=self.__processSequence,)
         self.__sequence.extend(list(blinkString))
 
     def __processSequence(self, timer):
@@ -30,7 +26,7 @@ class Led:
             return
         if (self.__index < len(self.__sequence)):
             char = self.__sequence[self.__index]
-            if char == " ":
+            if (char == " "):
                 self.__led.off()
             else:
                 self.__led.on()

@@ -9,7 +9,8 @@ def printDisplay(pin):
     lcd.blink_cursor_on()
     lcd.custom_char(0, space1)
     lcd.custom_char(1, space2)
-    lcd.putstr("Invader")
+    lcd.custom_char(2, heart)
+    lcd.putstr("Invader " + chr(2))
     lcd.move_to(7, 1)
     lcd.putstr(chr(0) + chr(1))
 

@@ -105,9 +105,9 @@ class Morse:
         letterCount = len(letters)
         for letterIndex in range(letterCount):
             letter = letters[letterIndex].lower()
-            if letter in codeMap:
+            if (letter in codeMap):
                 output += codeMap[letter]
-                if letterIndex < letterCount - 1:
+                if (letterIndex < letterCount - 1):
                     output += codeMap[self.__separatorKey]
             else:
                 return KeyError
@@ -120,16 +120,14 @@ class Morse:
         return self.__toMorseCode(string, self.__blinking)
 
     def __toStringFromCode(self, morse, codeMap):
-        words = morse.split(
-            codeMap[self.__separatorKey] + codeMap[" "] + codeMap[self.__separatorKey]
-        )
+        words = morse.split(codeMap[self.__separatorKey] + codeMap[" "] + codeMap[self.__separatorKey])
         output = ""
 
         for word in words:
             letters = word.split(codeMap[self.__separatorKey])
             for letter in letters:
                 for string, code in codeMap.items():
-                    if letter == code:
+                    if (letter == code):
                         output += string
             output += " "
         return output[:-1]

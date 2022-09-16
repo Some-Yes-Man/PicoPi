@@ -3,7 +3,7 @@ from lib.morse import Morse
 from lib.sensor import LightSensor
 
 m = Morse()
-l = Led(0, 40)
+l = Led(0, 50)
 #s = LightSensor(28)
 
-l.blink(m.toBlink("norbert rocks poergpoihop weohw fiugiluwf   wef"))
+l.blink(m.toBlink("norbert rocks"))

@@ -59,7 +59,7 @@ def create(_path):
                 raise KeyboardInterrupt
             elif _is_eof(_char):
                 raise EOFError
-            elif _is_eoln(_char) or (31 <= ord(_char) < 127):
+            elif (_is_eoln(_char) or (31 <= ord(_char) < 127)):
                 sys.stdout.write(_char)
             else:
                 _char = ''
@@ -68,7 +68,7 @@ def create(_path):
     try:
         sys.stdout.write('\r')  # This seems to be important!
         for _module in sys.modules:
-            if sys.modules[_module].__file__ == _path:
+            if (sys.modules[_module].__file__ == _path):
                 del sys.modules[_module]
         os.remove(_path)
     except OSError:
@@ -103,7 +103,7 @@ def ls(path="."):
         _files.sort()
         for _file in _files:
             _stat = os.stat("%s/%s" % (path, _file))
-            if _stat[0] & 0x4000:  # stat.S_IFDIR
+            if (_stat[0] & 0x4000):  # stat.S_IFDIR
                 sys.stdout.write('   <dir> %s\n' % _file)
         for _file in _files:
             _stat = os.stat("%s/%s" % (path, _file))
@@ -144,17 +144,17 @@ def rm(_path):
 def unload(_path):
     _count = 0
     for _module in sys.modules:
-        if sys.modules[_module].__file__ == _path:
+        if (sys.modules[_module].__file__ == _path):
             del sys.modules[_module]
             _count += 1
-    if _count == 0:
+    if (_count == 0):
         sys.stderr.write('Module not loaded\n')
 
 
 def run(_path):
     try:
         for _module in sys.modules:
-            if sys.modules[_module].__file__ == _path:
+            if (sys.modules[_module].__file__ == _path):
                 del sys.modules[_module]
         _file = open(_path, 'r')
         _file.close()
