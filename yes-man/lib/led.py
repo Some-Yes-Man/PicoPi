@@ -1,14 +1,16 @@
 from machine import Pin, Timer
+import micropython
 
 
 class Led:
-    foo = "bar"
     __frequency = 1
     __blinking = False
     __timer = Timer()
     __led = None
     __sequence = []
     __index = 0
+
+    micropython.alloc_emergency_exception_buf(100)
 
     def __init__(self, gpioPin, freq=None):
         if (freq != None):
@@ -25,14 +27,13 @@ class Led:
         if (self.__index == 0) and (len(self.__sequence) == 0):
             return
         if (self.__index < len(self.__sequence)):
-            char = self.__sequence[self.__index]
-            if (char == " "):
+            if (self.__sequence[self.__index] == " "):
                 self.__led.off()
             else:
                 self.__led.on()
             self.__index += 1
         else:
-            self.__sequence = []
+            self.__sequence.clear()
             self.__index = 0
             self.__blinking = False
             self.__timer.deinit()
