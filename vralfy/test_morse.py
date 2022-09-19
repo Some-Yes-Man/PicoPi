@@ -3,6 +3,7 @@ from includes.huffman import Huffman
 from includes.morse import Morse
 from includes.oled import OLED
 import time
+from machine import Pin
 
 bautrate  = 0.05
 control_signals = False
@@ -15,7 +16,6 @@ oled=OLED(i2cPosition=5)
 pwm_speaker = const.getPWM(13)
 pwm_led = const.getPWM(14)
 led = const.ONBOARD_LED
-lightsensor = const.getPin(18)
 
 pwm_speaker.freq(600)
 pwm_speaker.duty_u16(0)
@@ -76,9 +76,18 @@ def irqCallback(pin):
   oled.text("DONE", 45, 25)
   oled.show()
 
+
+def irqSensor(pin):
+  if pin.value() == 0:
+    print('UP')
+  elif pin.value() == 1:
+    print('DOWN')
+
 oled.text('press da button', 0, 40)
 oled.show()
+
 const.setIrq(12, handler=irqCallback)
+const.setIrq(18, handler=irqSensor, trigger=Pin.IRQ_FALLING | Pin.IRQ_RISING)
 
 while True:
   time.sleep(0.2)

@@ -1,9 +1,11 @@
 from lib.led import Led
 from lib.morse import Morse
-from lib.sensor import Sensor
+from lib.sensor import SyncingSensor
 
 m = Morse()
-l = Led(0, 10)
-#s = LightSensor(28)
+l = Led(gpioPin=0, freq=20)
+s = SyncingSensor(gpioPin=28, triggerOnFalling=True)
 
-l.blink(m.toBlink("sos sos sos sos"))
+blinkCode = m.toBlink("^sos sos sos")
+print(blinkCode)
+l.blink(blinkCode)
