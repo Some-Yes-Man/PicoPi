@@ -71,35 +71,28 @@ class picoLedControl:
         return words
 
     """
-    shortLongTuple -> defines the duration for _short and for _long in [ms]
-    pause -> break between letters, twice for words in [ms]
+    inputPin -> its the input pin, silly!
+    oneDuration -> duration in [ms] defines short and blank, long is 2* short
+    scanInterval -> defines the fraction of the short in which the pin is scanned, kind of controls the accuracy
 
-    transforms received Light-input into text based on shortLongTuple and base definition
+    transforms received Light-input into text, based on short-duration
     """
-    def morseReceive(self, onDuration, inputPin):
+    def morseReceive(self, oneDuration, inputPin, scanInterval):
         received = []
-        scan = onDuration/2
+        scan = oneDuration/scanInterval
         curTail = []
-        pre = ""
-        while not self.terminationSend(curTail):
+        window = []
+        while not self.terminationSend(curTail, (4*scanInterval)):
             cur = inputPin.value()
-            if cur == "off":
-                received.append("_")
-            if cur == "on":
-                if pre == "on":
-                    received.append("_")
-                else:
-                    received.append(".")
-            pre = cur
-
-            # Todo: tail als sliding window -> mapping tail to symbols
-
+            window.append(cur)
             curTail.append(cur)
-            if curTail.__len__() > 4:
+            if window.__len__() == (2*scanInterval):
+                received.append(self.guessWhat(window))
+                window = []
+            if curTail.__len__() > (4*scanInterval):
                 curTail.remove(0)
-            sleep(1-scan)
-        data = received.__len__()-(curTail.__len__()-1)
-        return received[0:data]
+            sleep(1000-scan)
+        return received
 
 
     def mapInputToMorseInput(self, input):
@@ -108,10 +101,11 @@ class picoLedControl:
 
 
     """
-    uses the already defined and split input to create the text of the received morse  
     . -> short
     - -> long
     _ -> blank
+    
+    uses the already defined and split input to create the text of the received morse  
     """
     def morseToText(self, input):
         text = ""
@@ -141,9 +135,21 @@ class picoLedControl:
         return text
 
 
-    def terminationSend(self, tail):
-        finalSignal = ["1","0","1","0"]
-        if tail == finalSignal:
-            return True
+    def terminationSend(self, tail, size):
+        if tail.__len__() == size:
+            if tail.__contains__("0"):
+                return True
         return False
+
+    def guessWhat(self, window):
+        if window.__contains__("1"):
+            if window.count('1') > window.count("0"):
+                return ["-"]
+            else:
+                halfSizePlusOne = (window.__len__()/2)+1
+                if window[0:halfSizePlusOne].count('1')>((halfSizePlusOne/2)+1):
+                    return [".","-"]
+                else:
+                    return ["_","."]
+        return ["_", "_"]
 

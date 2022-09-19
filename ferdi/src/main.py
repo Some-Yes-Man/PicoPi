@@ -15,7 +15,7 @@ def MainProcess():
     worker = _thread.start_new_thread(processEventOnQueue, events)
     while True:
         #Todo: sth happends -> event is created
-        if sthHapends:
+        if sthHappens:
             pin = Pin(1, Pin.OUT)
             e = event(pin)
             events.put(e)
@@ -25,7 +25,7 @@ def MainProcess():
             print("running is stopped")
 
 
-def sthHapends():
+def sthHappens():
     return True
 
 def processEventOnQueue(events):

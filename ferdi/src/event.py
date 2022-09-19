@@ -1,5 +1,9 @@
 from EVENT_MAPPING import EVENT_MAPPING
 
+"""
+    Idea is to map incomming Events,
+"""
+
 class event:
 
     def __init__(self, pin):

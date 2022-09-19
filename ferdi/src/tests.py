@@ -1,4 +1,7 @@
 
+"""
+    Testing without pico being connected
+"""
 
 # pL = picoLED(0, [])
 # #a aaabb bb
