@@ -1,4 +1,5 @@
 import time
+import micropython
 from machine import Timer
 
 syncPattern = [1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1]
@@ -30,10 +31,16 @@ def printWorld(timer):
     print("World: " + str(bar))
 
 
+refHello = printHello
+refWorld = printWorld
+def lambdaHello(x): return micropython.schedule(refHello, None)
+def lambdaWorld(x): return micropython.schedule(refWorld, None)
+
+
 timer1 = Timer()
-timer1.init(period=523, mode=Timer.PERIODIC, callback=printHello)
+timer1.init(period=523, mode=Timer.PERIODIC, callback=lambdaHello)
 timer2 = Timer()
-timer2.init(period=421, mode=Timer.PERIODIC, callback=printWorld)
+timer2.init(period=421, mode=Timer.PERIODIC, callback=lambdaWorld)
 
 counter = 0
 while True:

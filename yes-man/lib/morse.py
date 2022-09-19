@@ -97,6 +97,7 @@ class Morse:
         ")": "### # ### ### # ###",
         " ": " ",
         __separatorKey: "   ",
+        "^": "# # # # # "
     }
 
     def __toMorseCode(self, string, codeMap):
