@@ -1,6 +1,7 @@
+import utime
 from time import sleep_ms
 
-dit = 200
+dit = 500
 read_intervall = int(dit/10)
 
 dah = 3*dit
@@ -86,12 +87,43 @@ MorseCodes_rev = {
     'lllll': '9'
 }
 
+def send_sync(led):
+    for i in range(5):
+        led.led_for(dit)
+        sleep_ms(between_symbol)
+
+def analyse_dit_length(ldr):
+    count_sync = 0
+    length_list = []
+    while count_sync < 5:
+        start_time = utime.ticks_ms()
+        while ldr.value() == 0:
+            sleep_ms(1)
+        end_time = utime.ticks_ms()
+        length_list[count_sync] = end_time - start_time
+        count_sync = count_sync + 1
+    length = 0
+    for i in range (5):
+        length += length_list[i]
+    length /= 5
+    return length
+
+def set_dit_length(val):
+    global dit, read_intervall, dah, between_letters, between_symbol, between_words
+    dit = val
+    read_intervall = int(dit/10)
+    dah = 3*dit
+    between_symbol = 1*dit
+    between_letters = 3*dit
+    between_words = 7*dit
+
 def send(text, led):
     for c in text:
         if c == ' ':
             sleep_ms(between_words-between_letters)
         else:
-            letter(MorseCodes[c.lower()], led)
+            if c.lower() in MorseCodes:
+                letter(MorseCodes[c.lower()], led)
     return
 
 def letter(code, led):
@@ -117,7 +149,6 @@ def translate_to_morse(data):
     index = 0
     while (index < len(data)):
         count = count_following(data, index)
-        print(index, " ", len(data), " ", count)
         if data[index] == 1:
             if count > between_letters/read_intervall:
                 res = res + " - "
@@ -132,9 +163,7 @@ def translate_to_morse(data):
     return res
     
 def translate_to_text(data):
-    print(data)
     data = translate_to_morse(data)
-    print(data)
     res = ""
     for x in data.split():
         if x == "-":
