@@ -35,6 +35,9 @@
 import sys
 import os
 import time
+import micropython
+
+micropython.alloc_emergency_exception_buf(200)
 
 
 def create(_path):
