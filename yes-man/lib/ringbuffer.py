@@ -2,11 +2,14 @@ class RingBuffer:
 
     __readIndex = 0
     __writeIndex = 0
-    __tmp = 0
+    __bufferSize = 0
     __empty = True
 
     def __init__(self, size):
-        self.__bufferArray = bytearray(size)
+        if (size <= 0):
+            raise ValueError("RingBuffer must at least be of size 1.")
+        self.__bufferSize = size
+        self.__bufferArray = bytearray(self.__bufferSize)
 
     def write(self, byte):
         if (not self.__empty and (self.__writeIndex == self.__readIndex)):
@@ -21,8 +24,8 @@ class RingBuffer:
     def read(self):
         if (self.__empty):
             return None
-        self.__tmp = self.__bufferArray[self.__readIndex]
-        self.__readIndex = (self.__readIndex + 1) % len(self.__bufferArray)
+        tmp = self.__bufferArray[self.__readIndex]
+        self.__readIndex = (self.__readIndex + 1) % self.__bufferSize
         if (self.__readIndex == self.__writeIndex):
             self.__empty = True
-        return self.__tmp
+        return tmp

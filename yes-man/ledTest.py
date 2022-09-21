@@ -4,13 +4,17 @@ from lib.morse import Morse
 from lib.sensor import SyncingSensor
 
 m = Morse()
-l = Led(gpioPin=0, freq=20)
-s = SyncingSensor(gpioPin=28, triggerOnFalling=True)
+l = Led(gpioPin=0, freq=17)
+s = SyncingSensor(gpioPin=28, triggerOnFalling=True, syncCount=5, syncFrequency=100)
 
-blinkCode = m.toBlink("^my display is broken -.-")
-print(blinkCode)
-l.blink(blinkCode)
+blinkCode1 = m.toBlink("^display ")
+blinkCode2 = m.toBlink("broke -.-")
+print(blinkCode1)
+print(blinkCode2)
+l.blink(blinkCode1)
+l.blink(blinkCode2)
 
 while True:
-    time.sleep(1)
-    print("tick")
+    while not s.isBufferEmpty():
+        print(s.readBuffer())
+    time.sleep_ms(500)

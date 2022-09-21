@@ -11,8 +11,6 @@ class Led:
     __sequence = []
     __index = 0
 
-    micropython.alloc_emergency_exception_buf(100)
-
     def __init__(self, gpioPin, freq=None):
         if (freq is not None):
             self.__frequency = freq
