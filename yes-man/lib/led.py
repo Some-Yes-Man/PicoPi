@@ -19,10 +19,10 @@ class Led:
         self.__led = Pin(gpioPin, Pin.OUT)
 
     def blink(self, blinkString):
+        self.__sequence.extend(list(blinkString))
         if (not self.__blinking):
             self.__blinking = True
             self.__timer.init(freq=self.__frequency, mode=Timer.PERIODIC, callback=self.__processSequence)
-        self.__sequence.extend(list(blinkString))
 
     def __processSequence(self, timer):
         if (self.__index == 0) and (len(self.__sequence) == 0):

@@ -30,7 +30,7 @@ row = 0
 line = 0
 
 
-i2c = I2C(1, sda=Pin(2), scl=Pin(3), freq=400000)
+i2c = I2C(0, sda=Pin(4), scl=Pin(5), freq=400000)
 lcd = I2cLcd(i2c, i2c.scan()[0], 2, 16)
 lcd.clear()
 lcd.backlight_on()
