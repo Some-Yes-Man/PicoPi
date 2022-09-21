@@ -1,7 +1,8 @@
 from machine import Pin
-from utime import sleep
+from utime import sleep, sleep_ms
 
-import MORSE_DICT
+import ferdi.src.MORSE_DICT
+from ferdi.src import MORSE_DICT
 
 
 class picoLedControl:
@@ -80,18 +81,24 @@ class picoLedControl:
     def morseReceive(self, oneDuration, inputPin, scanInterval):
         received = []
         scan = oneDuration/scanInterval
+        print('scan '+str(scan))
         curTail = []
         window = []
         while not self.terminationSend(curTail, (4*scanInterval)):
             cur = inputPin.value()
+            print('0')
             window.append(cur)
             curTail.append(cur)
-            if window.__len__() == (2*scanInterval):
-                received.append(self.guessWhat(window))
+            print('window '+str(window))
+            print('tail '+str(curTail))
+            if len(window) == (2*scanInterval):
+                print('1')
+                received.extend(self.guessWhat(window))
                 window = []
-            if curTail.__len__() > (4*scanInterval):
+            if len(curTail) > (4*scanInterval):
+                print('2')
                 curTail.remove(0)
-            sleep(1000-scan)
+            sleep_ms(1000-int(scan))
         return received
 
 
@@ -112,6 +119,7 @@ class picoLedControl:
         curWord = ""
         letter = []
         blankHit = False
+        print(input)
         for x in input:
             if x == "_":
                 if blankHit:
@@ -136,18 +144,32 @@ class picoLedControl:
 
 
     def terminationSend(self, tail, size):
-        if tail.__len__() == size:
-            if tail.__contains__("0"):
+        if len(tail) == size:
+            if 0 in tail:
                 return True
         return False
 
     def guessWhat(self, window):
-        if window.__contains__("1"):
-            if window.count('1') > window.count("0"):
+        print("guess "+str(window))
+        cur = []
+        changed = True
+        if '1' in window:
+            for i in range(len(window)):
+                if not window[i] == 0:
+                    if changed:
+                        cur.append(window[i])
+                    else:
+                        changed = True
+                    #new letter, word or space beings
+
+                    if not window[i] == 0:
+                        return True
+
+            if window.count(1) > window.count(0):
                 return ["-"]
             else:
-                halfSizePlusOne = (window.__len__()/2)+1
-                if window[0:halfSizePlusOne].count('1')>((halfSizePlusOne/2)+1):
+                halfSizePlusOne = (len(window)/2)+1
+                if window[0:halfSizePlusOne].count(1)>((halfSizePlusOne/2)+1):
                     return [".","-"]
                 else:
                     return ["_","."]

@@ -1,4 +1,5 @@
-from EVENT_MAPPING import EVENT_MAPPING
+
+from ferdi.src.EVENT_MAPPING import EVENT_MAPPING
 
 """
     Idea is to map incomming Events,
