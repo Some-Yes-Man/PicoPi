@@ -34,18 +34,19 @@ class picoLedControl:
     
     controls this LED-pin to morse given text based on tuple-information 
     """
-    def morseSend(self, text, pause, shortLongTuple):
+    def morseSend(self, text, pause):
         words = self.splitText(text)
         for word in words:
             for w in word:
                 if w == '.':
                     self.turnOn()
-                    sleep(shortLongTuple[0])
+                    sleep(pause)
                     self.turnOff()
                     sleep(pause)
                 else:
                     self.turnOn()
-                    sleep(shortLongTuple[1])
+                    sleep(pause)
+                    sleep(pause)
                     self.turnOff()
                     sleep(pause)
             sleep(pause)
@@ -63,12 +64,13 @@ class picoLedControl:
 
     def splitText(self, text):
         words = []
-        cur = ''
+        cur = ""
         for s in list(text):
             if s.isspace():
                 words.append(cur)
             else:
-                cur.__add__(MORSE_DICT.MORSE_CODE_DICT[s.upper()])
+                temp = MORSE_DICT.MORSE_CODE_DICT[s.upper()]
+                cur = cur + temp
         return words
 
     """
@@ -81,7 +83,6 @@ class picoLedControl:
     def morseReceive(self, oneDuration, inputPin, scanInterval):
         received = []
         scan = oneDuration/scanInterval
-        print('scan '+str(scan))
         curTail = []
         window = []
         while not self.terminationSend(curTail, (4*scanInterval)):
@@ -89,14 +90,10 @@ class picoLedControl:
             print('0')
             window.append(cur)
             curTail.append(cur)
-            print('window '+str(window))
-            print('tail '+str(curTail))
             if len(window) == (2*scanInterval):
-                print('1')
                 received.extend(self.guessWhat(window))
                 window = []
             if len(curTail) > (4*scanInterval):
-                print('2')
                 curTail.remove(0)
             sleep_ms(1000-int(scan))
         return received
@@ -117,29 +114,39 @@ class picoLedControl:
     def morseToText(self, input):
         text = ""
         curWord = ""
-        letter = []
-        blankHit = False
-        print(input)
+        letter = ""
+        newSymbol = False
+        newLetter = False
+        newWord = False
+
+        ".-___.-__.-__.-__-...__-...___-...___-..."
+
         for x in input:
             if x == "_":
-                if blankHit:
-                    letter.append(" ")
-                    blankHit = False
+                if newSymbol:
+                    if newLetter:
+                        if newWord:
+                            curWord = curWord+" "
+                            text = text + curWord
+                            curWord = ""
+                            newSymbol = newWord = newLetter = False
+                        else:
+                            newWord = True
+                    else:
+                        newLetter = True
                 else:
-                    letter.append(curWord)
-                    curWord = ""
-                    blankHit = True
+                    newSymbol = True
             else:
-                curWord = curWord+x
-                blankHit = False
-        letter.append(curWord)
-        for l in letter:
-            if l.isspace():
-                text = text + " "
-            else:
-                for key, value in MORSE_DICT.MORSE_CODE_DICT.items():
-                    if l == value:
-                        text = text + key
+                if newSymbol:
+                    for key, value in MORSE_DICT.MORSE_CODE_DICT.items():
+                        if letter == value:
+                            curWord = curWord+ key
+                    letter = ""
+                else:
+                    letter = letter + x
+                if newLetter:
+                    curWord = curWord +letter
+                    letter = ""
         return text
 
 
@@ -150,25 +157,11 @@ class picoLedControl:
         return False
 
     def guessWhat(self, window):
-        print("guess "+str(window))
-        cur = []
-        changed = True
-        if '1' in window:
-            for i in range(len(window)):
-                if not window[i] == 0:
-                    if changed:
-                        cur.append(window[i])
-                    else:
-                        changed = True
-                    #new letter, word or space beings
-
-                    if not window[i] == 0:
-                        return True
-
+        if 1 in window:
             if window.count(1) > window.count(0):
                 return ["-"]
             else:
-                halfSizePlusOne = (len(window)/2)+1
+                halfSizePlusOne = int((len(window)/2)+1)
                 if window[0:halfSizePlusOne].count(1)>((halfSizePlusOne/2)+1):
                     return [".","-"]
                 else:
