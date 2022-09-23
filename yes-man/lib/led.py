@@ -4,17 +4,15 @@ import micropython
 
 class Led:
     SPACE = const(" ")
-    __frequency = 1
-    __blinking = False
-    __timer = Timer()
-    __led = None
-    __sequence = []
-    __index = 0
 
-    def __init__(self, gpioPin, freq=None):
-        if (freq is not None):
-            self.__frequency = freq
+    def __init__(self, gpioPin, freq=1, doneCallback=None):
         self.__led = Pin(gpioPin, Pin.OUT)
+        self.__frequency = freq
+        self.__blinking = False
+        self.__timer = Timer()
+        self.__sequence = []
+        self.__index = 0
+        self.__doneCallbackRef = doneCallback
 
     def blink(self, blinkString):
         self.__sequence.extend(list(blinkString))
@@ -26,7 +24,7 @@ class Led:
         if (self.__index == 0) and (len(self.__sequence) == 0):
             return
         if (self.__index < len(self.__sequence)):
-            if (self.__sequence[self.__index] == self.SPACE):
+            if (self.__sequence[self.__index] == Led.SPACE):
                 self.__led.off()
             else:
                 self.__led.on()
@@ -37,3 +35,5 @@ class Led:
             self.__blinking = False
             self.__timer.deinit()
             self.__led.off()
+            if self.__doneCallbackRef is not None:
+                micropython.schedule(self.__doneCallbackRef, 0)
