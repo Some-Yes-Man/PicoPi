@@ -9,7 +9,7 @@ class SyncingSensor():
     maxNoChangeCount = const(10)  # max. length of same-value stretch until EOT is assumed
 
     def __init__(self, gpioPin, triggerOnFalling, syncCount=5, syncFrequency=100, invertSignal=False):
-        print("SyncingSensor for PIN #" + str(gpioPin) + " Falling:" + str(triggerOnFalling) + " Count:" + str(syncCount) + ".")
+        # print("SyncingSensor for PIN #" + str(gpioPin) + " Falling:" + str(triggerOnFalling) + " Count:" + str(syncCount) + ".")
         self.__sensor = Pin(gpioPin, Pin.IN, Pin.PULL_UP)  # sensor pin
         # setup refs to methods, because creating them in ISRs is a no-no
         self.__syncCallbackRef = self.__isrPullSensorToSync  # method ref for ISR use
@@ -96,7 +96,7 @@ class SyncingSensor():
                 lastSymbol = symbol
             else:
                 symbolCounts[iterationIndex * 2 + symbolIndex] += 1
-        print(symbolCounts)
+        # print(symbolCounts)
         return symbolCounts
 
     def __syncPatternHasEnoughIterations(self, pattern):
@@ -114,7 +114,7 @@ class SyncingSensor():
         self.__pullFrameIndex += 1
         # check whether frame is complete
         if (self.__pullFrameIndex >= (SyncingSensor.pullCountPerDataFrame + self.__pullFrameDiff)):
-            print("FULL " + str(self.__pullFrameBuffer)+" i:" + str(self.__pullFrameIndex) + " d:" + str(self.__pullFrameDiff))
+            # print("FULL " + str(self.__pullFrameBuffer)+" i:" + str(self.__pullFrameIndex) + " d:" + str(self.__pullFrameDiff))
             # check for 'one'
             if (sum(self.__pullFrameBuffer) >= (SyncingSensor.pullCountPerDataFrame + self.__pullFrameDiff - 1)):
                 value = 1
@@ -124,13 +124,13 @@ class SyncingSensor():
             # only for 'normal' frames check start+end
             if (self.__pullFrameIndex == SyncingSensor.pullCountPerDataFrame):
                 if (self.__pullFrameBuffer[0] != value):
-                    print("+1")
+                    # print("+1")
                     self.__pullFrameDiff = 1
                 if (self.__pullFrameBuffer[SyncingSensor.pullCountPerDataFrame - 1] != value):
-                    print("-1")
+                    # print("-1")
                     self.__pullFrameDiff = -1
             else:
-                print("=0")
+                # print("=0")
                 self.__pullFrameDiff = 0
             # zero-out frame; reset
             for i in range(SyncingSensor.pullCountPerDataFrame):
