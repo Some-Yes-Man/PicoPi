@@ -9,10 +9,11 @@ from lib.sensor import SyncingSensor
 
 runningOne = True
 runningTwo = True
+onlineTwo = False
 
 
 def sndCoreTask():
-    global runningOne
+    global runningOne, onlineTwo
 
     i2c = I2C(0, sda=Pin(4), scl=Pin(5), freq=10000)
     lcd = I2cLcd(i2c, i2c.scan()[0], 2, 16)
@@ -22,6 +23,7 @@ def sndCoreTask():
 
     sensor = SyncingSensor(gpioPin=28, triggerOnFalling=True, syncCount=5, syncFrequency=200, invertSignal=True)
     currentRead = []
+    onlineTwo = True
 
     while runningTwo:
         while not sensor.isBufferEmpty():
@@ -46,25 +48,29 @@ def sndCoreTask():
                 lcd.putstr(Morse.toLetterFromBlink(blink))
                 currentRead.clear()
         time.sleep_ms(100)
-    # set flag to shut down core #0
+    # stop sensor; set flag to shut down core #0; exit
+    sensor.shutdown()
     runningOne = False
     _thread.exit()
 
 
-def stopCores(timer):
+def stopCores(irq):
     global runningTwo
     runningTwo = False
 
-
-led = Led(gpioPin=0, freq=30)
-blinkCode = Morse.toBlink("^what hath god wrought!")
-print(blinkCode)
-led.blink(blinkCode)
 
 touchPin = Pin(16, Pin.IN, Pin.PULL_DOWN)
 touchPin.irq(trigger=Pin.IRQ_RISING, handler=stopCores)
 
 _thread.start_new_thread(sndCoreTask, ())
+while not onlineTwo:
+    print(".", end="")
+    time.sleep_ms(10)
+
+led = Led(gpioPin=0, freq=10)
+blinkCode = Morse.toBlink("^what hath god wrought!")
+print(blinkCode)
+led.blink(blinkCode)
 
 while runningOne:
     print("Running...")

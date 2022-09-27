@@ -9,7 +9,7 @@ class SyncingSensor():
     maxNoChangeCount = const(10)  # max. length of same-value stretch until EOT is assumed
 
     def __init__(self, gpioPin, triggerOnFalling, syncCount=5, syncFrequency=100, invertSignal=False):
-        # print("SyncingSensor for PIN #" + str(gpioPin) + " Falling:" + str(triggerOnFalling) + " Count:" + str(syncCount) + ".")
+        print("SyncingSensor for PIN #" + str(gpioPin) + " Falling:" + str(triggerOnFalling) + " Count:" + str(syncCount) + ".")
         self.__sensor = Pin(gpioPin, Pin.IN, Pin.PULL_UP)  # sensor pin
         # setup refs to methods, because creating them in ISRs is a no-no
         self.__syncCallbackRef = self.__isrPullSensorToSync  # method ref for ISR use
@@ -96,7 +96,7 @@ class SyncingSensor():
                 lastSymbol = symbol
             else:
                 symbolCounts[iterationIndex * 2 + symbolIndex] += 1
-        # print(symbolCounts)
+        print(symbolCounts)
         return symbolCounts
 
     def __syncPatternHasEnoughIterations(self, pattern):
@@ -155,3 +155,8 @@ class SyncingSensor():
 
     def isBufferEmpty(self):
         return self.__pullBuffer.isEmpty()
+
+    def shutdown(self):
+        self.__sensor.irq(trigger=Pin.IRQ_FALLING | Pin.IRQ_RISING, handler=None)
+        self.__pulling = False
+        self.__synching = False
