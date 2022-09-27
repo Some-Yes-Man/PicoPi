@@ -13,9 +13,9 @@ pL = picoLedControl(0, dataPin)
 # #a aaabb bb
 input = ".-___.-__.-__.-__-...__-...___-...___-..."
 out = pL.morseToText(input)
-print("1 "+str(out))
-print()
-sleep(1)
+print("out "+str(out))
+# print()
+# sleep(1)
 #pL.pin = ledPin
 #pL.morseSend("Hello You ", 0.5)
 #print()

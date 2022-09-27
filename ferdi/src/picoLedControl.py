@@ -7,9 +7,9 @@ from ferdi.src import MORSE_DICT
 
 class picoLedControl:
 
-    def __init__(self, baseState, pin):
+    def __init__(self, baseState, pinId, pinState):
         self.baseState = baseState
-        self.pin = pin
+        self.pin = Pin(pinId, pinState)
         self.pin.value(baseState)
 
 
@@ -34,24 +34,33 @@ class picoLedControl:
     
     controls this LED-pin to morse given text based on tuple-information 
     """
-    def morseSend(self, text, pause):
+    def morseSend(self, text, pause, pin):
+        sleep_ms(pause)
+        sleep_ms(pause)
         words = self.splitText(text)
         for word in words:
             for w in word:
+                print(w)
                 if w == '.':
-                    self.turnOn()
-                    sleep(pause)
-                    self.turnOff()
-                    sleep(pause)
+                    pin.value(0)
+                    sleep_ms(pause)
+                    pin.value(1)
+                    sleep_ms(pause)
+                if w == '-':
+                    pin.value(0)
+                    sleep_ms(pause)
+                    sleep_ms(pause)
+                    pin.value(1)
+                    sleep_ms(pause)
                 else:
-                    self.turnOn()
-                    sleep(pause)
-                    sleep(pause)
-                    self.turnOff()
-                    sleep(pause)
-            sleep(pause)
-            sleep(pause)
+                    pin.value(1)
+                    sleep_ms(pause)
+                    sleep_ms(pause)
+                print("here")
+            sleep_ms(pause)
+            sleep_ms(pause)
             self.sendMorseTermination(pause)
+        return
 
 
     def sendMorseTermination(self, pause):
@@ -68,9 +77,10 @@ class picoLedControl:
         for s in list(text):
             if s.isspace():
                 words.append(cur)
+                cur = ""
             else:
                 temp = MORSE_DICT.MORSE_CODE_DICT[s.upper()]
-                cur = cur + temp
+                cur = cur + temp + "_"
         return words
 
     """
@@ -119,17 +129,15 @@ class picoLedControl:
         newLetter = False
         newWord = False
 
-        ".-___.-__.-__.-__-...__-...___-...___-..."
+#        ".-___.-__.-__.-__-.._.__-._..___-...___-..."
 
         for x in input:
+            print("the x "+str(x))
             if x == "_":
                 if newSymbol:
                     if newLetter:
                         if newWord:
                             curWord = curWord+" "
-                            text = text + curWord
-                            curWord = ""
-                            newSymbol = newWord = newLetter = False
                         else:
                             newWord = True
                     else:
@@ -140,13 +148,29 @@ class picoLedControl:
                 if newSymbol:
                     for key, value in MORSE_DICT.MORSE_CODE_DICT.items():
                         if letter == value:
-                            curWord = curWord+ key
-                    letter = ""
+                            curWord = curWord + key
+                            letter = ""
                 else:
                     letter = letter + x
                 if newLetter:
-                    curWord = curWord +letter
-                    letter = ""
+                    #curWord = curWord + letter
+                    letter = x
+                if newWord:
+                    print("cur ["+ str(curWord) + "]")
+                    text = text + curWord
+                    curWord = ""
+                    newSymbol = False
+                    newWord = False
+                    newLetter = False
+
+
+
+
+            print("bools " + str(newSymbol) +", "+str(newLetter)+", "+str(newWord))
+            print("letter "+str(letter))
+            print("curWord "+str(curWord))
+            print("text "+str(text))
+            print()
         return text
 
 
