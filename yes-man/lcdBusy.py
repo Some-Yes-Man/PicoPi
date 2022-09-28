@@ -1,4 +1,4 @@
-import time
+import utime
 import random
 from machine import Pin, I2C
 from pico_i2c_lcd import I2cLcd
@@ -22,4 +22,4 @@ touchPin.irq(trigger=Pin.IRQ_RISING, handler=stopAll)
 
 while running:
     lcd.putstr(str(random.randint(0, 9)))
-    time.sleep_ms(250)
+    utime.sleep_ms(100)

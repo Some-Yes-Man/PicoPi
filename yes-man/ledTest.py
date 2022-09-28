@@ -1,4 +1,4 @@
-import time
+import utime
 import _thread
 import random
 from machine import Pin, I2C
@@ -47,7 +47,7 @@ def sndCoreTask():
                         blink += "#"
                 lcd.putstr(Morse.toLetterFromBlink(blink))
                 currentRead.clear()
-        time.sleep_ms(100)
+        utime.sleep_ms(100)
     # stop sensor; set flag to shut down core #0; exit
     sensor.shutdown()
     runningOne = False
@@ -65,7 +65,7 @@ touchPin.irq(trigger=Pin.IRQ_RISING, handler=stopCores)
 _thread.start_new_thread(sndCoreTask, ())
 while not onlineTwo:
     print(".", end="")
-    time.sleep_ms(10)
+    utime.sleep_ms(10)
 
 led = Led(gpioPin=0, freq=10)
 blinkCode = Morse.toBlink("^what hath god wrought!")
@@ -74,6 +74,6 @@ led.blink(blinkCode)
 
 while runningOne:
     print("Running...")
-    time.sleep_ms(1000)
+    utime.sleep_ms(1000)
 
 print("Done.")

@@ -1,4 +1,3 @@
-import time
 from lib.ringbuffer import RingBuffer
 from machine import Pin, Timer
 import micropython
@@ -71,7 +70,6 @@ class SyncingSensor():
             self.__pullNoChangeCount = 0
             # calculate pull frequency and delay; wait for delay and start pulling
             pullFrequency = self.__syncFrequency / (sum(counts[:-1]) / (len(counts) - 1))
-            # time.sleep_ms(int(1000 / pullFrequency / SyncingSensor.pullCountPerDataFrame / 2))
             self.__pullTimer.init(freq=int(pullFrequency * SyncingSensor.pullCountPerDataFrame), mode=Timer.PERIODIC, callback=self.__isrPullSensorForData)
         # pattern at least one iteration long and already wrong; abort synching
         elif (len(counts) > 3) and not self.__syncPatternCorrect(counts[:-1]):
