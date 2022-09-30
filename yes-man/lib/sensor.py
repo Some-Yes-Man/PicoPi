@@ -1,6 +1,6 @@
-from lib.ringbuffer import RingBuffer
-from machine import Pin, Timer
 import micropython
+from machine import Pin, Timer
+from lib.ringbuffer import RingBuffer
 
 
 class SyncingSensor():

@@ -30,7 +30,3 @@ touchPin.irq(trigger=Pin.IRQ_RISING, handler=stop)
 task = uasyncio.create_task(secondCoreTask())
 
 uasyncio.run(firstCoreTask())
-
-# while running:
-#     print("Core 1 busy.")
-#     utime.sleep_ms(300)

@@ -1,18 +1,16 @@
 from machine import Pin, Timer
-import micropython
 
 
 class Led:
     SPACE = const(" ")
 
-    def __init__(self, gpioPin, freq=1, doneCallback=None):
+    def __init__(self, gpioPin, freq=1):
         self.__led = Pin(gpioPin, Pin.OUT)
         self.__frequency = freq
         self.__blinking = False
         self.__timer = Timer()
         self.__sequence = []
         self.__index = 0
-        self.__doneCallbackRef = doneCallback
 
     def blink(self, blinkString):
         self.__sequence.extend(list(blinkString))
@@ -35,5 +33,3 @@ class Led:
             self.__blinking = False
             self.__timer.deinit()
             self.__led.off()
-            if self.__doneCallbackRef is not None:
-                micropython.schedule(self.__doneCallbackRef, 0)

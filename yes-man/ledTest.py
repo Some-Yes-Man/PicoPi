@@ -1,6 +1,5 @@
-import utime
-import _thread
 import random
+import uasyncio
 from machine import Pin, I2C
 from pico_i2c_lcd import I2cLcd
 from lib.led import Led
@@ -9,11 +8,12 @@ from lib.sensor import SyncingSensor
 
 runningOne = True
 runningTwo = True
-onlineTwo = False
+
+serviceCoreTask = None
 
 
-def sndCoreTask():
-    global runningOne, onlineTwo
+async def sndCoreTask():
+    global runningOne
 
     i2c = I2C(0, sda=Pin(4), scl=Pin(5), freq=10000)
     lcd = I2cLcd(i2c, i2c.scan()[0], 2, 16)
@@ -23,7 +23,6 @@ def sndCoreTask():
 
     sensor = SyncingSensor(gpioPin=28, triggerOnFalling=True, syncCount=5, syncFrequency=200, invertSignal=True)
     currentRead = []
-    onlineTwo = True
 
     while runningTwo:
         while not sensor.isBufferEmpty():
@@ -47,11 +46,23 @@ def sndCoreTask():
                         blink += "#"
                 lcd.putstr(Morse.toLetterFromBlink(blink))
                 currentRead.clear()
-        utime.sleep_ms(100)
+        await uasyncio.sleep_ms(100)
     # stop sensor; set flag to shut down core #0; exit
     sensor.shutdown()
     runningOne = False
     _thread.exit()
+
+
+async def serviceTask():
+    global runningOne
+    while runningTwo:
+        await uasyncio.sleep_ms(100)
+    runningOne = False
+
+
+def serviceCoreInit():
+    global serviceCoreTask
+    serviceCoreTask = uasyncio.create_task(serviceTask())
 
 
 def stopCores(irq):
@@ -59,21 +70,18 @@ def stopCores(irq):
     runningTwo = False
 
 
+async def mainTask():
+    while runningOne:
+        await uasyncio.sleep_ms(100)
+
 touchPin = Pin(16, Pin.IN, Pin.PULL_DOWN)
 touchPin.irq(trigger=Pin.IRQ_RISING, handler=stopCores)
 
-_thread.start_new_thread(sndCoreTask, ())
-while not onlineTwo:
-    print(".", end="")
-    utime.sleep_ms(10)
+_thread.start_new_thread(serviceCoreInit, ())
 
 led = Led(gpioPin=0, freq=10)
-blinkCode = Morse.toBlink("^what hath god wrought!")
-print(blinkCode)
-led.blink(blinkCode)
+led.blink(Morse.toBlink("^what hath god wrought!"))
 
-while runningOne:
-    print("Running...")
-    utime.sleep_ms(1000)
+uasyncio.run(mainTask())
 
 print("Done.")
