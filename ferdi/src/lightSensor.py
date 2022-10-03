@@ -57,3 +57,4 @@ class lightSensor:
         self.times = []
         print('de_init happend')
 
+

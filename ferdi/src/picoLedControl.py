@@ -121,56 +121,47 @@ class picoLedControl:
     
     uses the already defined and split input to create the text of the received morse  
     """
+
     def morseToText(self, input):
         text = ""
-        curWord = ""
+        word = ""
         letter = ""
-        newSymbol = False
         newLetter = False
         newWord = False
-
-#        ".-___.-__.-__.-__-.._.__-._..___-...___-..."
-
         for x in input:
-            print("the x "+str(x))
             if x == "_":
-                if newSymbol:
-                    if newLetter:
-                        if newWord:
-                            curWord = curWord+" "
-                        else:
-                            newWord = True
+                if newLetter:
+                    if newWord:
+                        word = word + " "
                     else:
-                        newLetter = True
+                        newWord = True
                 else:
-                    newSymbol = True
+                    newLetter = True
             else:
-                if newSymbol:
+                if newLetter:
                     for key, value in MORSE_DICT.MORSE_CODE_DICT.items():
                         if letter == value:
-                            curWord = curWord + key
-                            letter = ""
+                            word = word + key
+                    letter = x
+                    newLetter = False
                 else:
                     letter = letter + x
-                if newLetter:
-                    #curWord = curWord + letter
-                    letter = x
                 if newWord:
-                    print("cur ["+ str(curWord) + "]")
-                    text = text + curWord
-                    curWord = ""
-                    newSymbol = False
-                    newWord = False
-                    newLetter = False
-
-
-
-
-            print("bools " + str(newSymbol) +", "+str(newLetter)+", "+str(newWord))
-            print("letter "+str(letter))
-            print("curWord "+str(curWord))
-            print("text "+str(text))
+                    text = text + word
+                    word = " "
+                    newWord = newLetter = False
+            print(x)
+            print(newLetter, newWord)
+            print("letter [" + str(letter) + "]")
+            print("word [" + str(word) + "]")
+            print("text " + str(text))
             print()
+        if not letter == "":
+            for key, value in MORSE_DICT.MORSE_CODE_DICT.items():
+                if letter == value:
+                    word = word + key
+        if not word == "":
+            text = text + word
         return text
 
 

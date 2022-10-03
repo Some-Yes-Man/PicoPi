@@ -2,14 +2,16 @@
 
 from machine import Pin, ADC
 import time
-from utime import sleep
+from utime import sleep, sleep_ms
 import _thread
 
 import micropython
 
 #from ferdi.src.event import event
+from ferdi.src import EVENT_MAPPING
 from ferdi.src.lightSensor import lightSensor
 from ferdi.src.picoLedControl import picoLedControl
+import uasyncio
 
 micropython.alloc_emergency_exception_buf(100)
 
@@ -74,39 +76,13 @@ def testInterrupt():
                                  handler=None)
     print("running is stopped")
 
-pin = Pin("LED", Pin.OUT)
-def setValueTo1(pinName, state):
-    #i = 0
-    global pin
-    # while i < 1:
-    #     i += 1
-    #     print("foo")
-    #     time.sleep(1)
-    # _thread.exit()
-    # return
-    #pin = Pin(pinName, state)
-    time.sleep(1)
-    #print("happend1")
-    pin.value(0)
-    #print("happend2")
-    time.sleep(1)
-    pin.value(1)
-    time.sleep(1)
-    pin.value(0)
-    time.sleep(1)
-    pin.value(1)
-    #print("done")
-    _thread.exit()
-    return
+
 
 #MainProcess()
 #sthHappens()
 #testInterrupt()
-_thread.start_new_thread(setValueTo1, ("LED", Pin.OUT))
 
-while True:
-    time.sleep(1)
-    print("running")
+
 def testMultiSensor():
     #sender = picoLedControl(1, 'LED', Pin.OUT)
     #print("morse start")
@@ -115,7 +91,7 @@ def testMultiSensor():
     counter = 0
     #pin = Pin("LED", Pin.OUT)
 
-    _thread.start_new_thread(setValueTo1, ("LED", Pin.OUT))
+    #_thread.start_new_thread(setValueTo1, ("LED", Pin.OUT))
     #setValueTo1(pin)
 
     while counter < 10:
@@ -127,6 +103,65 @@ def testMultiSensor():
 
 
 #testMultiSensor()
+
+mainOn = True
+working = True
+
+def theMainLoop():
+    global mainOn
+    pin = Pin("", 1)
+    irq0 = pin.irq(trigger=pin.IRQ_RISING | pin.IRQ_FALLING,handler=setValueTo1("mainOn"))
+    irq1 = pin.irq(trigger=pin.IRQ_RISING | pin.IRQ_FALLING,handler=setValueTo1("mainOn"))
+    irq2 = pin.irq(trigger=pin.IRQ_RISING | pin.IRQ_FALLING,handler=setValueTo1("id1"))
+    irq3 = pin.irq(trigger=pin.IRQ_RISING | pin.IRQ_FALLING,handler=setValueTo1("id2"))
+    _thread.start_new_thread(hartAmWorken, ())
+
+    while mainOn:
+        sleep_ms(100)
+        checkEventMappingsAndDoCb()
+
+
+
+def checkEventMappingsAndDoCb():
+    if EVENT_MAPPING.EVENT_MAPPING.values().__contains__(1):
+        for key, value in EVENT_MAPPING.EVENT_MAPPING.items():
+            if value == 1:
+                uasyncio.create_task(EVENT_MAPPING.CB_MAPPING[key])
+
+
+
+def setValueTo1(id):
+    global mainOn, working
+    if id == "mainOn":
+        working = False
+        mainOn = False
+        return
+    if id == "working":
+        if working:
+            working = False
+            return
+        else:
+            working = True
+            return
+    else:
+        if EVENT_MAPPING.EVENT_MAPPING[id] == 0:
+            EVENT_MAPPING.EVENT_MAPPING[id] = 1
+            return
+        else:
+            EVENT_MAPPING.EVENT_MAPPING[id] = 0
+            return
+
+    """
+    /Me is worker and i do work!/
+    """
+def hartAmWorken():
+    global working
+    while working:
+        await uasyncio.sleep_ms(200)
+        print("still working...")
+    print("no more working !")
+
+
 
 
 

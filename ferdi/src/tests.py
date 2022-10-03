@@ -7,9 +7,9 @@ from utime import sleep
 
 from ferdi.src.picoLedControl import picoLedControl
 
-dataPin = Pin(22, Pin.IN)
-ledPin = Pin('LED', Pin.OUT)
-pL = picoLedControl(0, dataPin)
+#dataPin = Pin(22, Pin.IN)
+#ledPin = Pin('LED', Pin.OUT)
+pL = picoLedControl(0, [])
 # #a aaabb bb
 input = ".-___.-__.-__.-__-...__-...___-...___-..."
 out = pL.morseToText(input)
@@ -29,5 +29,6 @@ print("out "+str(out))
 # print("windows:")
 # for window in windows:
 #     print(pL.guessWhat(window))
+
 
 
