@@ -1,10 +1,7 @@
 
 """
- Maps pin to Handler-function
+ Maps irq to boolean-flag
+ Maps irq to callback
 """
-from ferdi.src.callBacks import cb1, cb2
-from ferdi.src.event import event
 
-EVENT_MAPPING = {"id1":1, "id2":1}
-
-CB_MAPPING = {"id1":cb1, "id2":cb2}
+THE_EVENT_MAPPING = {"id1":1, "id2":1}

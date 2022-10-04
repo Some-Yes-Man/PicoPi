@@ -1,15 +1,14 @@
 from machine import Pin
 from utime import sleep, sleep_ms
 
-import ferdi.src.MORSE_DICT
 from ferdi.src import MORSE_DICT
 
 
 class picoLedControl:
 
-    def __init__(self, baseState, pinId, pinState):
+    def __init__(self, baseState, pin):
         self.baseState = baseState
-        self.pin = Pin(pinId, pinState)
+        self.pin = pin
         self.pin.value(baseState)
 
 
@@ -40,7 +39,6 @@ class picoLedControl:
         words = self.splitText(text)
         for word in words:
             for w in word:
-                print(w)
                 if w == '.':
                     pin.value(0)
                     sleep_ms(pause)
@@ -55,21 +53,10 @@ class picoLedControl:
                 else:
                     pin.value(1)
                     sleep_ms(pause)
-                    sleep_ms(pause)
-                print("here")
+            pin.value(1)
             sleep_ms(pause)
-            sleep_ms(pause)
-            self.sendMorseTermination(pause)
+            pin.value(1)
         return
-
-
-    def sendMorseTermination(self, pause):
-        for i in range(5):
-            self.turnOn()
-            sleep(pause)
-            self.turnOff()
-            sleep(pause)
-
 
     def splitText(self, text):
         words = []
@@ -81,7 +68,11 @@ class picoLedControl:
             else:
                 temp = MORSE_DICT.MORSE_CODE_DICT[s.upper()]
                 cur = cur + temp + "_"
-        return words
+        if cur == "":
+            return words
+        else:
+            words.append(cur)
+            return words
 
     """
     inputPin -> its the input pin, silly!
@@ -95,6 +86,7 @@ class picoLedControl:
         scan = oneDuration/scanInterval
         curTail = []
         window = []
+        # Todo: should probably test if this actually works lol !
         while not self.terminationSend(curTail, (4*scanInterval)):
             cur = inputPin.value()
             print('0')
@@ -108,12 +100,6 @@ class picoLedControl:
             sleep_ms(1000-int(scan))
         return received
 
-
-    def mapInputToMorseInput(self, input):
-        result = []
-        return result
-
-
     """
     . -> short
     - -> long
@@ -121,19 +107,13 @@ class picoLedControl:
     
     uses the already defined and split input to create the text of the received morse  
     """
-
     def morseToText(self, input):
-        text = ""
-        word = ""
-        letter = ""
-        newLetter = False
-        newWord = False
+        text = word = letter = ""
+        newLetter = newWord = False
         for x in input:
             if x == "_":
                 if newLetter:
-                    if newWord:
-                        word = word + " "
-                    else:
+                    if not newWord:
                         newWord = True
                 else:
                     newLetter = True
@@ -149,13 +129,7 @@ class picoLedControl:
                 if newWord:
                     text = text + word
                     word = " "
-                    newWord = newLetter = False
-            print(x)
-            print(newLetter, newWord)
-            print("letter [" + str(letter) + "]")
-            print("word [" + str(word) + "]")
-            print("text " + str(text))
-            print()
+                    newWord = False
         if not letter == "":
             for key, value in MORSE_DICT.MORSE_CODE_DICT.items():
                 if letter == value:

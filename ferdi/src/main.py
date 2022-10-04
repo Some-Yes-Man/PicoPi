@@ -1,17 +1,17 @@
 #from multiprocessing.queues import Queue
 
-from machine import Pin, ADC
-import time
+from machine import Pin
 from utime import sleep, sleep_ms
 import _thread
 
 import micropython
 
-#from ferdi.src.event import event
-from ferdi.src import EVENT_MAPPING
+from ferdi.src.EVENT_MAPPING import THE_EVENT_MAPPING
 from ferdi.src.lightSensor import lightSensor
 from ferdi.src.picoLedControl import picoLedControl
 import uasyncio
+
+from ferdi.src.callBacks import CB_MAPPING
 
 micropython.alloc_emergency_exception_buf(100)
 
@@ -36,7 +36,7 @@ def sthHappens():
     sensor = lightSensor(dataPin)
     sender = picoLedControl(0, senderPin)
     receiver = picoLedControl(0, dataPin)
-    worker = _thread.start_new_thread(sender.morseSend,("Hello You ", 0.2))
+    #worker = _thread.start_new_thread(sender.morseSend,("Hello You ", 0.2))
     #sender.morseSend("Hello You ", 0.5)
     print("morse send")
     #print("average is " + str(sensor.syncForMorse()))
@@ -59,24 +59,17 @@ def processEventOnQueue(events):
     curEvent.__call__()
 
 def testInterrupt():
-    pin = Pin(18, Pin.OUT)
-    value = 0
-    print(pin.value())
-    pin.irq(trigger=pin.IRQ_RISING | pin.IRQ_FALLING,
-                                 handler=lambda t:setValueTo1(value))
+    pin = Pin(18, Pin.IN)
+    print("value: " + str(pin.value()))
+    #pin.irq(trigger=pin.IRQ_RISING | pin.IRQ_FALLING,
+                                 #handler=lambda t:setValueTo1(value))
     counter = 0
     print('loop begins')
-    while counter < 4:
-        sleep(2)
+    while counter < 10:
+        sleep(1)
         counter = counter +1
-        print(value)
-        if not value == 0:
-            print(pin.value())
-    pin.irq(trigger=pin.IRQ_RISING | pin.IRQ_FALLING,
-                                 handler=None)
+        print("value: " + str(pin.value()))
     print("running is stopped")
-
-
 
 #MainProcess()
 #sthHappens()
@@ -108,63 +101,74 @@ mainOn = True
 working = True
 
 def theMainLoop():
-    global mainOn
-    pin = Pin("", 1)
-    irq0 = pin.irq(trigger=pin.IRQ_RISING | pin.IRQ_FALLING,handler=setValueTo1("mainOn"))
-    irq1 = pin.irq(trigger=pin.IRQ_RISING | pin.IRQ_FALLING,handler=setValueTo1("mainOn"))
-    irq2 = pin.irq(trigger=pin.IRQ_RISING | pin.IRQ_FALLING,handler=setValueTo1("id1"))
-    irq3 = pin.irq(trigger=pin.IRQ_RISING | pin.IRQ_FALLING,handler=setValueTo1("id2"))
-    _thread.start_new_thread(hartAmWorken, ())
-
+    global mainOn, working, THE_EVENT_MAPPING
+    pin = Pin("LED", Pin.OUT)
+    pin_ = Pin(18, Pin.IN)
+    #pin.irq(trigger=pin.IRQ_RISING | pin.IRQ_FALLING,handler=setValueTo1("mainOn"))
+    #pin.irq(trigger=pin.IRQ_RISING | pin.IRQ_FALLING,handler=setValueTo1("working"))
+    pin_.irq(trigger=Pin.IRQ_RISING | Pin.IRQ_FALLING, handler=setValueTo1)
+    #pin_.irq(trigger=pin_.IRQ_RISING,handler=setValueTo1("id2"))
+    #_thread.start_new_thread(initSecondCore, ())
+    counter = 0
     while mainOn:
         sleep_ms(100)
-        checkEventMappingsAndDoCb()
+        checkEventMappingsAndDoCallbacks()
+        counter = counter + 1
+        #print("main is running")
+        if counter == 200:
+            setValueTo1("working")
+            sleep_ms(1000)
+            setValueTo1("mainOn")
+    print("We are completely done !")
 
 
-
-def checkEventMappingsAndDoCb():
-    if EVENT_MAPPING.EVENT_MAPPING.values().__contains__(1):
-        for key, value in EVENT_MAPPING.EVENT_MAPPING.items():
+def checkEventMappingsAndDoCallbacks():
+    if 1 in THE_EVENT_MAPPING.values():
+        for key, value in THE_EVENT_MAPPING.items():
             if value == 1:
-                uasyncio.create_task(EVENT_MAPPING.CB_MAPPING[key])
+                print(callable(CB_MAPPING[key]))
+                uasyncio.create_task(CB_MAPPING[key]())
 
 
-
-def setValueTo1(id):
-    global mainOn, working
-    if id == "mainOn":
+def setValueTo1(irq):
+    global mainOn, working, THE_EVENT_MAPPING
+    irqId = "id1"
+    if irqId == 1:
         working = False
         mainOn = False
         return
-    if id == "working":
-        if working:
-            working = False
-            return
-        else:
-            working = True
-            return
     else:
-        if EVENT_MAPPING.EVENT_MAPPING[id] == 0:
-            EVENT_MAPPING.EVENT_MAPPING[id] = 1
-            return
+        if irqId == 2:
+            if working:
+                working = False
+                return
+            else:
+                working = True
+                return
         else:
-            EVENT_MAPPING.EVENT_MAPPING[id] = 0
-            return
+            if THE_EVENT_MAPPING[irqId] == 0:
+                THE_EVENT_MAPPING[irqId] = 1
+                #print("set 1")
+                return
+            else:
+                THE_EVENT_MAPPING[irqId] = 0
+                #print("set 0")
+                return
 
-    """
-    /Me is worker and i do work!/
-    """
-def hartAmWorken():
+
+"""
+    /Me is worker and i do my work!/
+"""
+async def hartAmWorken():
     global working
     while working:
-        await uasyncio.sleep_ms(200)
+        await uasyncio.sleep_ms(500)
         print("still working...")
     print("no more working !")
 
 
+def initSecondCore():
+    global working
+    uasyncio.run(hartAmWorken())
 
-
-
-
-
-
+theMainLoop()
