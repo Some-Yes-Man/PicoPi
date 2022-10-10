@@ -81,7 +81,7 @@ class picoLedControl:
 
     transforms received Light-input into text, based on short-duration
     """
-    def morseReceive(self, oneDuration, inputPin, scanInterval):
+    def morseReceive(self, inputPin, scanInterval, oneDuration=500):
         received = []
         scan = oneDuration/scanInterval
         curTail = []

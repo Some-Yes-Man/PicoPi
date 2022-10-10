@@ -99,14 +99,17 @@ def testMultiSensor():
 
 mainOn = True
 working = True
+pin_led = Pin("LED", Pin.OUT)
+pin_data = Pin(18, Pin.IN)
+lS = lightSensor(pin_data)
+pL_receive = picoLedControl(1, pin_data)
+pL_send = picoLedControl(1, pin_led)
 
 def theMainLoop():
     global mainOn, working, THE_EVENT_MAPPING
-    pin = Pin("LED", Pin.OUT)
-    pin_ = Pin(18, Pin.IN)
     #pin.irq(trigger=pin.IRQ_RISING | pin.IRQ_FALLING,handler=setValueTo1("mainOn"))
     #pin.irq(trigger=pin.IRQ_RISING | pin.IRQ_FALLING,handler=setValueTo1("working"))
-    pin_.irq(trigger=Pin.IRQ_RISING | Pin.IRQ_FALLING, handler=setValueTo1)
+    pin_data.irq(trigger=Pin.IRQ_RISING | Pin.IRQ_FALLING, handler=setValueTo1)
     #pin_.irq(trigger=pin_.IRQ_RISING,handler=setValueTo1("id2"))
     #_thread.start_new_thread(initSecondCore, ())
     counter = 0
