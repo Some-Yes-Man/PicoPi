@@ -2,6 +2,7 @@
 
 from machine import Timer
 import utime
+import uasyncio
 class lightSensor:
 
     def __init__(self, pin):
@@ -16,17 +17,17 @@ class lightSensor:
         self.duration = 0
 
 
-    def syncForMorse(self):
+    async def syncForMorse(self):
         cur = self.pin.value()
         #print("interrupted")
         if cur == self.prevValue:
-            #print('ignored')
             return
         newTime = utime.ticks_ms()
         timeDiff = newTime - self.lastTime
         if timeDiff > 50000000:
             print('took too long: '+ str(newTime)+", "+str(self.lastTime))
             return
+        await uasyncio.sleep_ms(100)
         self.lastTime = newTime
         if len(self.received) > 6:
             if self.isCorrectStart():

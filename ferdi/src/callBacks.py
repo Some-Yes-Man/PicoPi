@@ -35,7 +35,7 @@ class morse_send_cb:
             THE_EVENT_MAPPING["id3"] = 0
             print("morsing the given text now")
             toBeMorse = pL_receive.morseReceive(HAND_OVER_PARAMS["3"])
-            await uasyncio.sleep_ms(500)
+            await uasyncio.sleep_ms(100)
             pL_send.morseSend(toBeMorse)
             print("morsing of [" + str(toBeMorse) + "] happend.")
         return
@@ -52,7 +52,7 @@ class morse_receive_cb:
             THE_EVENT_MAPPING["id4"] = 0
             print("receiving morse")
             result = pL_receive.morseReceive(HAND_OVER_PARAMS["5"])
-            await uasyncio.sleep_ms(500)
+            await uasyncio.sleep_ms(100)
             print("transforming morse into text")
             text = pL_receive.morseToText(result)
             print("the result is: " + str(text))
@@ -68,6 +68,7 @@ class sync_morse_cb:
             THE_EVENT_MAPPING["id5"] = 1
         else:
             print("syncing for morsing started")
+            await uasyncio.sleep_ms(100)
             THE_EVENT_MAPPING["id5"] = 0
             duration = lS.syncForMorse()
             HAND_OVER_PARAMS["5"] = duration

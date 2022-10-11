@@ -165,7 +165,7 @@ def setValueTo1(irq):
 async def hartAmWorken():
     global working
     while working:
-        await uasyncio.sleep_ms(500)
+        await uasyncio.sleep_ms(200)
         print("still working...")
     print("no more working !")
 
@@ -174,4 +174,4 @@ def initSecondCore():
     global working
     uasyncio.run(hartAmWorken())
 
-theMainLoop()
+#theMainLoop()

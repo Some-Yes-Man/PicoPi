@@ -2,7 +2,7 @@ from machine import Pin
 from utime import sleep, sleep_ms
 
 from ferdi.src import MORSE_DICT
-
+import uasyncio
 
 class picoLedControl:
 
@@ -33,11 +33,10 @@ class picoLedControl:
     
     controls this LED-pin to morse given text based on tuple-information 
     """
-    def morseSend(self, text, pause, pin):
-        sleep_ms(pause)
-        sleep_ms(pause)
+    async def morseSend(self, text, pause, pin):
         words = self.splitText(text)
-        for word in words:
+        await uasyncio.sleep_ms(100)
+        for word in words.__await__():
             for w in word:
                 if w == '.':
                     pin.value(0)
@@ -58,7 +57,7 @@ class picoLedControl:
             pin.value(1)
         return
 
-    def splitText(self, text):
+    async def splitText(self, text):
         words = []
         cur = ""
         for s in list(text):
@@ -81,8 +80,9 @@ class picoLedControl:
 
     transforms received Light-input into text, based on short-duration
     """
-    def morseReceive(self, inputPin, scanInterval, oneDuration=500):
+    def morseReceive(self, inputPin, scanInterval, oneDuration=50):
         received = []
+        oneDuration = oneDuration if 100 > oneDuration > 10 else 50
         scan = oneDuration/scanInterval
         curTail = []
         window = []
@@ -107,7 +107,7 @@ class picoLedControl:
     
     uses the already defined and split input to create the text of the received morse  
     """
-    def morseToText(self, input):
+    async def morseToText(self, input):
         text = word = letter = ""
         newLetter = newWord = False
         for x in input:
