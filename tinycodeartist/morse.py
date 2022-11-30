@@ -97,10 +97,12 @@ def analyse_dit_length(ldr):
     length_list = []
     while count_sync < 5:
         start_time = utime.ticks_ms()
+        while ldr.value():
+            sleep_ms(1)
         while ldr.value() == 0:
             sleep_ms(1)
         end_time = utime.ticks_ms()
-        length_list[count_sync] = end_time - start_time
+        length_list.append(end_time - start_time)
         count_sync = count_sync + 1
     length = 0
     for i in range (5):

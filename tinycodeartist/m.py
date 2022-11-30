@@ -45,7 +45,6 @@ def read_morse(sensor_value):
         show(morse_text)
         count_zero = 0
         morse_started = False
-        morse_data = []
     elif morse_started == True:
         morse_data.append(sensor_value)
         if sensor_value==0:
@@ -53,9 +52,11 @@ def read_morse(sensor_value):
         else:
             count_zero = count_zero + 1
     elif sensor_value == 0:
-        set_dit_length(analyse_dit_length())
+        set_dit_length(analyse_dit_length(ldr))
         print("started to read morse")
         morse_started = True
+        morse_data = []
+        count_zero = 0
         morse_data.append(sensor_value)
 
 def show_weather():
@@ -84,7 +85,7 @@ while True:
         if mode_changed:
             set_dit_length(50)
             mode_changed = False
-            text = "Hallo Welt, kannst du mich hören?"
+            text = "Hallo Welt"
             show_in_loop("morsing: "+text)
             send_sync(white_led)
         send(text, white_led)
