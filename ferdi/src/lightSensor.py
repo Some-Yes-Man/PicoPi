@@ -1,18 +1,61 @@
-from machine import Timer
 
+
+from machine import Timer
+import utime
+import uasyncio
 class lightSensor:
 
     def __init__(self, pin):
         self.pin = pin
         self.pollingState = True
-        self.pin.irq(lambda t: self.syncForMorse() if self.pollingState == True else print("ignored interrupt"))
+        self.received = []
+        self.times = []
+        self.interrupt = pin.irq(trigger=pin.IRQ_RISING | pin.IRQ_FALLING,
+                                 handler=lambda t: self.syncForMorse() if self.pollingState else None)
+        self.lastTime = utime.ticks_ms()
+        self.prevValue = 0
+        self.duration = 0
 
-    def syncForMorse(self):
-        self.pollingState = False
-        received = []
-        t1 = Timer(1)
-        t1.init(period=5000, mode=Timer.PERIODIC, callback=lambda t: received.append(self.pin.value))
 
-        #Todo: Timer is over - return 1?
-        if received.__len__() > 7:
-            return 1
+    async def syncForMorse(self):
+        cur = self.pin.value()
+        #print("interrupted")
+        if cur == self.prevValue:
+            return
+        newTime = utime.ticks_ms()
+        timeDiff = newTime - self.lastTime
+        if timeDiff > 50000000:
+            print('took too long: '+ str(newTime)+", "+str(self.lastTime))
+            return
+        await uasyncio.sleep_ms(100)
+        self.lastTime = newTime
+        if len(self.received) > 6:
+            if self.isCorrectStart():
+                print('average is :' + str(self.averageTimes()))
+                self.pollingState = False
+                return self.averageTimes()
+        else:
+            self.received.append(cur)
+            self.times.append(timeDiff)
+            self.prevValue = cur
+            return
+
+    def isCorrectStart(self):
+        if self.received == [1,0,1,0,1,0,1] or self.received == [0,1,0,1,0,1,0]:
+            return True
+        return False
+
+    def averageTimes(self):
+        print(self.times)
+        size = len(self.times)
+        self.duration = sum(self.times)/size
+        return self.duration
+
+    def deInit(self):
+        self.interrupt = self.pin.irq(trigger=self.pin.IRQ_RISING | self.pin.IRQ_FALLING,
+                                 handler=None)
+        self.received = []
+        self.times = []
+        print('de_init happend')
+
+

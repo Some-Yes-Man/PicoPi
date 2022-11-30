@@ -100,7 +100,8 @@ class Morse:
         "^": "# # # # # "
     }
 
-    def __toMorseCode(self, string, codeMap):
+    @classmethod
+    def __toMorseCode(cls, string, codeMap):
         letters = list(string)
         output = ""
         letterCount = len(letters)
@@ -109,32 +110,63 @@ class Morse:
             if (letter in codeMap):
                 output += codeMap[letter]
                 if (letterIndex < letterCount - 1):
-                    output += codeMap[self.__separatorKey]
+                    output += codeMap[Morse.__separatorKey]
             else:
                 return KeyError
         return output
 
-    def toAcustic(self, string):
-        return self.__toMorseCode(string, Morse.__acustic)
+    @classmethod
+    def toAcustic(cls, string):
+        return Morse.__toMorseCode(string, Morse.__acustic)
 
-    def toBlink(self, string):
-        return self.__toMorseCode(string, self.__blinking)
+    @classmethod
+    def toBlink(cls, string):
+        return Morse.__toMorseCode(string, Morse.__blinking)
 
-    def __toStringFromCode(self, morse, codeMap):
-        words = morse.split(codeMap[self.__separatorKey] + codeMap[" "] + codeMap[self.__separatorKey])
+    @classmethod
+    def __toStringFromCode(cls, morse, codeMap):
+        words = morse.split(codeMap[Morse.__separatorKey] + codeMap[" "] + codeMap[Morse.__separatorKey])
         output = ""
 
         for word in words:
-            letters = word.split(codeMap[self.__separatorKey])
-            for letter in letters:
-                for string, code in codeMap.items():
-                    if (letter == code):
-                        output += string
-            output += " "
+            output += Morse.__toWordFromCode(word, codeMap) + " "
         return output[:-1]
 
-    def toStringFromAcustic(self, morse):
-        return self.__toStringFromCode(morse, self.__acustic)
+    @classmethod
+    def __toWordFromCode(cls, morseWord, codeMap):
+        letters = morseWord.split(codeMap[Morse.__separatorKey])
+        output = ""
+        for letter in letters:
+            output += Morse.__toLetterFromCode(letter, codeMap)
+        return output
 
-    def toStringFromBlink(self, morse):
-        return self.__toStringFromCode(morse, self.__blinking)
+    @classmethod
+    def __toLetterFromCode(cls, morseLetter, codeMap):
+        for string, code in codeMap.items():
+            if (morseLetter == code):
+                return string
+        return "#"
+
+    @classmethod
+    def toStringFromAcustic(cls, morse):
+        return Morse.__toStringFromCode(morse, Morse.__acustic)
+
+    @classmethod
+    def toWordFromAcustic(cls, morse):
+        return Morse.__toWordFromCode(morse, Morse.__acustic)
+
+    @classmethod
+    def toLetterFromAcustic(cls, morse):
+        return Morse.__toLetterFromCode(morse, Morse.__acustic)
+
+    @classmethod
+    def toStringFromBlink(cls, morse):
+        return Morse.__toStringFromCode(morse, Morse.__blinking)
+
+    @classmethod
+    def toWordFromBlink(cls, morse):
+        return Morse.__toWordFromCode(morse, Morse.__blinking)
+
+    @classmethod
+    def toLetterFromBlink(cls, morse):
+        return Morse.__toLetterFromCode(morse, Morse.__blinking)

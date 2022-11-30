@@ -1,7 +1,9 @@
 
 """
- Maps pin to Handler-function
+ Maps irq to boolean-flag
+ Maps irq to callback
 """
-from event import event
 
-EVENT_MAPPING = {1:event.handlePin_1, 2:event.handlePin_2}
+THE_EVENT_MAPPING = {"id1":1, "id2":1, "id3":1, "id4":1, "id5":1}
+
+HAND_OVER_PARAMS = {"id3":"","id5":0}

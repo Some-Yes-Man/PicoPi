@@ -1,8 +1,8 @@
 from machine import Pin
-from utime import sleep
+from utime import sleep, sleep_ms
 
-import MORSE_DICT
-
+from ferdi.src import MORSE_DICT
+import uasyncio
 
 class picoLedControl:
 
@@ -33,42 +33,45 @@ class picoLedControl:
     
     controls this LED-pin to morse given text based on tuple-information 
     """
-    def morseSend(self, text, pause, shortLongTuple):
+    async def morseSend(self, text, pause, pin):
         words = self.splitText(text)
-        for word in words:
+        await uasyncio.sleep_ms(100)
+        for word in words.__await__():
             for w in word:
                 if w == '.':
-                    self.turnOn()
-                    sleep(shortLongTuple[0])
-                    self.turnOff()
-                    sleep(pause)
+                    pin.value(0)
+                    sleep_ms(pause)
+                    pin.value(1)
+                    sleep_ms(pause)
+                if w == '-':
+                    pin.value(0)
+                    sleep_ms(pause)
+                    sleep_ms(pause)
+                    pin.value(1)
+                    sleep_ms(pause)
                 else:
-                    self.turnOn()
-                    sleep(shortLongTuple[1])
-                    self.turnOff()
-                    sleep(pause)
-            sleep(pause)
-            sleep(pause)
-            self.sendMorseTermination(pause)
+                    pin.value(1)
+                    sleep_ms(pause)
+            pin.value(1)
+            sleep_ms(pause)
+            pin.value(1)
+        return
 
-
-    def sendMorseTermination(self, pause):
-        for i in range(5):
-            self.turnOn()
-            sleep(pause)
-            self.turnOff()
-            sleep(pause)
-
-
-    def splitText(self, text):
+    async def splitText(self, text):
         words = []
-        cur = ''
+        cur = ""
         for s in list(text):
             if s.isspace():
                 words.append(cur)
+                cur = ""
             else:
-                cur.__add__(MORSE_DICT.MORSE_CODE_DICT[s.upper()])
-        return words
+                temp = MORSE_DICT.MORSE_CODE_DICT[s.upper()]
+                cur = cur + temp + "_"
+        if cur == "":
+            return words
+        else:
+            words.append(cur)
+            return words
 
     """
     inputPin -> its the input pin, silly!
@@ -77,28 +80,25 @@ class picoLedControl:
 
     transforms received Light-input into text, based on short-duration
     """
-    def morseReceive(self, oneDuration, inputPin, scanInterval):
+    def morseReceive(self, inputPin, scanInterval, oneDuration=50):
         received = []
+        oneDuration = oneDuration if 100 > oneDuration > 10 else 50
         scan = oneDuration/scanInterval
         curTail = []
         window = []
+        # Todo: should probably test if this actually works lol !
         while not self.terminationSend(curTail, (4*scanInterval)):
             cur = inputPin.value()
+            print('0')
             window.append(cur)
             curTail.append(cur)
-            if window.__len__() == (2*scanInterval):
-                received.append(self.guessWhat(window))
+            if len(window) == (2*scanInterval):
+                received.extend(self.guessWhat(window))
                 window = []
-            if curTail.__len__() > (4*scanInterval):
+            if len(curTail) > (4*scanInterval):
                 curTail.remove(0)
-            sleep(1000-scan)
+            sleep_ms(1000-int(scan))
         return received
-
-
-    def mapInputToMorseInput(self, input):
-        result = []
-        return result
-
 
     """
     . -> short
@@ -107,47 +107,51 @@ class picoLedControl:
     
     uses the already defined and split input to create the text of the received morse  
     """
-    def morseToText(self, input):
-        text = ""
-        curWord = ""
-        letter = []
-        blankHit = False
+    async def morseToText(self, input):
+        text = word = letter = ""
+        newLetter = newWord = False
         for x in input:
             if x == "_":
-                if blankHit:
-                    letter.append(" ")
-                    blankHit = False
+                if newLetter:
+                    if not newWord:
+                        newWord = True
                 else:
-                    letter.append(curWord)
-                    curWord = ""
-                    blankHit = True
+                    newLetter = True
             else:
-                curWord = curWord+x
-                blankHit = False
-        letter.append(curWord)
-        for l in letter:
-            if l.isspace():
-                text = text + " "
-            else:
-                for key, value in MORSE_DICT.MORSE_CODE_DICT.items():
-                    if l == value:
-                        text = text + key
+                if newLetter:
+                    for key, value in MORSE_DICT.MORSE_CODE_DICT.items():
+                        if letter == value:
+                            word = word + key
+                    letter = x
+                    newLetter = False
+                else:
+                    letter = letter + x
+                if newWord:
+                    text = text + word
+                    word = " "
+                    newWord = False
+        if not letter == "":
+            for key, value in MORSE_DICT.MORSE_CODE_DICT.items():
+                if letter == value:
+                    word = word + key
+        if not word == "":
+            text = text + word
         return text
 
 
     def terminationSend(self, tail, size):
-        if tail.__len__() == size:
-            if tail.__contains__("0"):
+        if len(tail) == size:
+            if 0 in tail:
                 return True
         return False
 
     def guessWhat(self, window):
-        if window.__contains__("1"):
-            if window.count('1') > window.count("0"):
+        if 1 in window:
+            if window.count(1) > window.count(0):
                 return ["-"]
             else:
-                halfSizePlusOne = (window.__len__()/2)+1
-                if window[0:halfSizePlusOne].count('1')>((halfSizePlusOne/2)+1):
+                halfSizePlusOne = int((len(window)/2)+1)
+                if window[0:halfSizePlusOne].count(1)>((halfSizePlusOne/2)+1):
                     return [".","-"]
                 else:
                     return ["_","."]
