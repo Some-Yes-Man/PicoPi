@@ -12,7 +12,7 @@ class TwinkleQueue(PatternQueue):
                deviationRedPos: int = 0, deviationGreenPos: int = 0, deviationBluePos: int = 0,
                deviationRedNeg: int = 0, deviationGreenNeg: int = 0, deviationBlueNeg: int = 0,
                ):
-    super().__init__(canvas=canvas, description="Snake")
+    super().__init__(canvas=canvas, description="Twinkle Twinkle")
     for i in range(stars):
       r = max(0, min(255, red + deviationRed + deviationRedPos))
       minR = max(0, min(255, red - deviationRed - deviationRedNeg))
@@ -31,7 +31,7 @@ class TwinkleQueue(PatternQueue):
 
 if __name__ == "__main__":
   from xmas import canvas
-  s = TwinkleQueue(canvas=canvas, stars=60, red=50, green=50, blue=50, deviationRedPos=200)
+  s = TwinkleQueue(canvas=canvas, stars=40, red=30, green=50, blue=50, deviationRedPos=200)
   canvas.clear()
   while True:
     #canvas.clear()

@@ -11,7 +11,11 @@ class SnakePattern(Pattern):
     self.fade = fade
 
   def render(self):
-    #self.canvas.clear()
+    for i in range(self.length):
+      self.canvas.rgb((self.step + i) % self.canvas.get_ws().count(), 0, 0, 0)
+
+    self.step = (self.step + 1) % self.canvas.get_ws().count()
+
     for i in range(self.length):
       self.canvas.rgb((self.step + i) % self.canvas.get_ws().count(), self.red, self.green, self.blue)
 
@@ -27,8 +31,6 @@ class SnakePattern(Pattern):
       #print(r,g,b)
       self.canvas.rgb((self.step + i) % self.canvas.get_ws().count(), r, g, b)
       self.canvas.rgb((self.step + self.length - i) % self.canvas.get_ws().count(), r, g, b)
-
-    self.step = (self.step + 1) % self.canvas.get_ws().count()
 
 if __name__ == "__main__":
   from xmas import canvas
