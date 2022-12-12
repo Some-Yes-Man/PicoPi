@@ -49,3 +49,6 @@ class Canvas:
   def draw(self, x, y, r=0, g=0, b=0):
     n = self._ws.count() // self._rows*y + x
     self._ws.set_pixel_rgb(n,r,g,b)
+
+if __name__ == "__main__":
+  print("This is not a program")
