@@ -32,4 +32,10 @@ def getADC(pos):
   return ADC(26 + pos)
 
 
-ONBOARD_LED=getPin(25, True)
+ONBOARD_LED=Pin("LED", Pin.OUT)
+
+if __name__ == "__main__":
+  from time import sleep
+  while True:
+    ONBOARD_LED.toggle()
+    sleep(0.5)

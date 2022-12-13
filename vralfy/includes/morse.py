@@ -182,3 +182,15 @@ class Morse():
   def transmitBinary(self, binary, callback = None):
     if callback == None: return
     for v in binary: callback(v=='1' if 1 else 0)
+
+if __name__ == "__main__":
+  coder = Morse()
+  text = "abcdefghijklmopqrstuvwxyz"
+  text = "hello"
+  print(text)
+  print(coder.textToMorse(text))
+  for letter in text:
+    print(letter + ':'
+          + '\t' + coder.textToMorse(letter)
+          + '\t' + coder.textToBinary(letter)
+          )

@@ -152,3 +152,6 @@ class SSD1306_SPI(SSD1306):
         self.cs(0)
         self.spi.write(buf)
         self.cs(1)
+
+if __name__ == "__main__":
+  print("This is not a program")

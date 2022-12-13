@@ -115,3 +115,6 @@ class WS2813:
             buf[index] = off
 
             index += 1
+
+if __name__ == "__main__":
+  print("This is not a program")

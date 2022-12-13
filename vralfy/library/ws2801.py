@@ -113,3 +113,6 @@ class WS2801Pixels:
         clearing pixels to see the LEDs change!
         """
         self.set_pixels(0)
+
+if __name__ == "__main__":
+  print("This is not a program")

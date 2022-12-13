@@ -121,3 +121,6 @@ class WS2812:
         for index in range(end * 12, self.buf_length):
             buf[index] = off
             index += 1
+
+if __name__ == "__main__":
+  print("This is not a program")
