@@ -31,7 +31,7 @@ class TwinkleQueue(PatternQueue):
 
 if __name__ == "__main__":
   from xmas import canvas
-  s = TwinkleQueue(canvas=canvas, stars=40, red=30, green=50, blue=50, deviationRedPos=200)
+  s = TwinkleQueue(canvas=canvas, stars=25, red=30, green=50, blue=50, deviationRedPos=200)
   canvas.clear()
   while True:
     #canvas.clear()

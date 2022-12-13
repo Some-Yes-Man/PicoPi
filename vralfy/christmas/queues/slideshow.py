@@ -24,7 +24,7 @@ class SlideshowQueue(PatternQueue):
     self.addPattern(StarPattern(green=150))
 
     self.addPattern(SnakeQueue())
-    self.addPattern(TwinkleQueue(stars=60, red=30, green=50, blue=50, deviationRedPos=200))
+    self.addPattern(TwinkleQueue())
 
   def run(self):
     self.queue[self.patternPos].run()

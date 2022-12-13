@@ -13,6 +13,6 @@ class FillPattern(Pattern):
 
 if __name__ == "__main__":
   from xmas import canvas
-  s = FillPattern(canvas=canvas, red=240, green=0, blue=0)
+  s = FillPattern(canvas=canvas, red=255, green=20, blue=20)
   s.run()
   canvas.show()
