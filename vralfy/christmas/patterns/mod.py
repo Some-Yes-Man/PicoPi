@@ -2,8 +2,8 @@ from christmas.canvas import Canvas
 from christmas.pattern import Pattern
 
 class ModPattern(Pattern):
-  def __init__(self, canvas: Canvas= None):
-    super().__init__(canvas=canvas, description="Alternating pattern ... good for counting")
+  def __init__(self, canvas: Canvas= None, **kwargs):
+    super().__init__(canvas=canvas, description="Alternating pattern ... good for counting", **kwargs)
 
   def render(self):
     for i in range(self.canvas.get_ws().count()):

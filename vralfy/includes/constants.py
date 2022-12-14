@@ -31,7 +31,6 @@ def getADC(pos):
   if pos < 0 or pos > 2: return None
   return ADC(26 + pos)
 
-
 ONBOARD_LED=Pin("LED", Pin.OUT)
 
 if __name__ == "__main__":

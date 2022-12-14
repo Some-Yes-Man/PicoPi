@@ -29,9 +29,9 @@ if __name__ == "__main__":
     SnakeQueue(canvas=canvas),
     TwinkleQueue(canvas=canvas),
     ClearPattern(canvas=canvas),
-    FillPattern(canvas=canvas, red=255),
+    FillPattern(canvas=canvas),
     ModPattern(canvas=canvas),
-    SnakePattern(canvas=canvas, green=255),
+    SnakePattern(canvas=canvas),
     StarPattern(canvas=canvas),
   ]
   current_renderer=0
@@ -66,12 +66,14 @@ if __name__ == "__main__":
       v = int(r['parameter']['renderer'])
       global current_renderer
       current_renderer = min(len(renderer), max(0, v))
+      renderer[current_renderer].setParameters(**r['parameter'])
 
     r['leds'] = numberOfLED
     r['renderer'] = {}
     for idx in range(len(renderer)):
       r['renderer'][idx] = renderer[idx].getDescription()
     r['current_renderer'] = renderer[current_renderer].getDescription()
+    r['renderer_parameter'] = renderer[current_renderer].kwargs
     response.send(json.dumps(r))
     const.ONBOARD_LED.toggle()
 

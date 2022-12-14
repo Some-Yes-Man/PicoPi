@@ -4,9 +4,9 @@ from christmas.patternqueue import PatternQueue
 from christmas.patterns.snake import SnakePattern
 
 class SnakeQueue(PatternQueue):
-  def __init__(self, canvas: Canvas = None):
-    super().__init__(canvas=canvas, description="Snake")
-    self.addPattern(SnakePattern(length=5, red=100))
+  def __init__(self, canvas: Canvas = None, **kwargs):
+    super().__init__(canvas=canvas, description="Snake", **kwargs)
+    self.addPattern(SnakePattern())
 
 if __name__ == "__main__":
   from xmas import canvas
