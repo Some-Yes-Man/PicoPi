@@ -10,6 +10,8 @@
     "venv",
     "*.png",
     "*.pyc",
+    "main.py",
+    "boot.py"
   ],
   "picowgo.pythonPath": "C:\\Program Files (x86)\\Thonny",
   "picowgo.statusbarButtons": [

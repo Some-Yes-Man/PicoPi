@@ -18,3 +18,9 @@ class OLED(SSD1306_I2C):
     def printDebug(self):
         print("I2C Address      : "+hex(self.OLED_I2C.scan()[0]).upper())
         print("I2C Configuration: "+str(self.OLED_I2C))
+
+if __name__ == "__main__":
+  oled = OLED(i2cPosition=5)
+  oled.fill(0)
+  oled.text('hello there', 0, 40)
+  oled.show()

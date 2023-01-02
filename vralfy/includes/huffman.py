@@ -158,3 +158,15 @@ class Huffman(Morse):
       if (c == high): ret += dit
       elif (c == low): ret += dah
     return ret
+
+if __name__ == "__main__":
+  coder = Huffman()
+  text = "abcdefghijklmopqrstuvwxyz"
+  text = "hello"
+  print(text)
+  print(coder.textToMorse(text))
+  for letter in text:
+    print(letter + ':'
+          + '\t' + coder.textToMorse(letter)
+          + '\t' + coder.textToBinary(letter)
+          )
