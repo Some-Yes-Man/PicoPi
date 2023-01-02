@@ -5,7 +5,7 @@ from includes.sensors import Sensors
 from machine import Timer
 from time import sleep
 
-PWM13 = const.getPWM(13)
+PWM13 = const.getPWM(25)
 PWM14 = const.getPWM(14)
 
 import reset

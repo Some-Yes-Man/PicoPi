@@ -8,3 +8,5 @@ assert m.toStringFromAcustic(m.toAcustic(alphabet)) == alphabet
 
 assert m.toBlink(alphabet) == "### ### # ###   # ### ###   #   # ### #   ###   ### ### # #   # # ###   # #   ### ### ###   # ### ### #   # ###   # # #   ### # #   # # ### #   ### ### #   # # # #   # ### ### ###   ### # ###   # ### # #   ### # ### ###   ### # # ###   ### # ### #   # # # ###   ### # # #   ### #   ### ###   ### ### # # ### ###   # ### # ### # ###   ### # # # # ###   ### # ### # ### ###   # # ### ### # #   ### # ### ### #   ### # ### ### # ###   # ### ### # ### #       ### # # ### #"
 assert m.toStringFromBlink(m.toBlink(alphabet)) == alphabet
+
+print("Morse tests done.")
